@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.json.JSONObject;
 
+import okhttp3.FormBody;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -21,6 +22,7 @@ public class SendRequest {
         for(String key : header.keySet()){
             builder.addHeader(key, header.get(key));
         }
+
         Request request = builder.build();
 
         try (Response response = httpClient.newCall(request).execute()) {
@@ -48,6 +50,40 @@ public class SendRequest {
                 .url(url)
                 .addHeader("User-Agent", "OkHttp Bot")
                 .addHeader("Content-Type", "application/json");
+        for(String key : header.keySet()){
+            requestBuilder.addHeader(key, header.get(key));
+        }
+        requestBuilder.post(requestBody);
+        Request request = requestBuilder.build();
+
+        try (Response response = httpClient.newCall(request).execute()) {
+
+            if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
+            String res = response.body().string();
+            if(res.startsWith("[")){
+                res = res.substring(1, res.length());
+                res = res.substring(0, res.length() - 1);
+            }
+            return new JSONObject(res);
+        }
+
+    }
+
+    public static JSONObject postOAuth2(String url, Map<String, String> header, Map<String, String> body) throws Exception {
+
+        okhttp3.FormBody.Builder requestBodyBuilder = new FormBody.Builder();
+        for(String key : body.keySet()){
+            requestBodyBuilder.addEncoded(key, body.get(key));
+        }
+        RequestBody requestBody = requestBodyBuilder.build();
+
+        Builder requestBuilder = new Request.Builder()
+                .url(url)
+                .addHeader("User-Agent", "OkHttp Bot")
+                .addHeader("Content-Type", "application/x-www-form-urlencoded");
+        for(String key : header.keySet()){
+            requestBuilder.addHeader(key, header.get(key));
+        }
         requestBuilder.post(requestBody);
         Request request = requestBuilder.build();
 
@@ -76,6 +112,9 @@ public class SendRequest {
                 .url(url)
                 .addHeader("User-Agent", "OkHttp Bot")
                 .addHeader("Content-Type", "application/json");
+        for(String key : header.keySet()){
+            requestBuilder.addHeader(key, header.get(key));
+        }
         requestBuilder.put(requestBody);
         Request request = requestBuilder.build();
 

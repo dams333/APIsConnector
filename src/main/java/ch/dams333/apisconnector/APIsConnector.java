@@ -1,16 +1,22 @@
 package ch.dams333.apisconnector;
 
+import java.net.InetSocketAddress;
 import java.util.Scanner;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 
 import org.simpleyaml.configuration.file.YamlFile;
 
+import com.sun.net.httpserver.*;
+
 import ch.dams333.apisconnector.client.APIsConnectorClient;
+import ch.dams333.apisconnector.client.spotify.http.SpotifyHttpHandler;
 
 public class APIsConnector implements Runnable{
 
     private static boolean running;
     private final Scanner scanner = new Scanner(System.in);
-    private static APIsConnectorClient client;
+    public static APIsConnectorClient client;
 
     public static void main(String[] args) {
         running = true;
@@ -25,19 +31,38 @@ public class APIsConnector implements Runnable{
 
     @Override
     public void run() {
+        try {
+            startWebServer();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         System.out.println("Démarrage de l'app de test");
         client = APIsConnectorClient.builder()
             .addHueClient()
+            .addSpotifyClient()
             .build();
-        System.out.println("Client démarré avec l'id: " + client.getId().toString());
+
         while(running) {
             if(scanner.hasNextLine()) {
                 performCommand(scanner.nextLine());
             }
         }
         client.getHueClient().cancelListeners();
+        server.stop(0);
         System.out.println("App de test quittée");
         System.exit(0);
+    }
+
+    private static HttpServer server;
+
+    private void startWebServer() throws Exception{
+        server = HttpServer.create(new InetSocketAddress("localhost", 8333), 0);
+        server.createContext("/spotify", new  SpotifyHttpHandler());
+        ThreadPoolExecutor threadPoolExecutor = (ThreadPoolExecutor)Executors.newFixedThreadPool(10);
+        server.setExecutor(threadPoolExecutor);
+        server.start();
+        System.out.println("Serveur web démarré. Il écoute sur le port 8333");
     }
 
     private void performCommand(String command){

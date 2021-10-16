@@ -3,15 +3,18 @@ package ch.dams333.apisconnector.client;
 import java.util.UUID;
 
 import ch.dams333.apisconnector.client.hue.HueClient;
+import ch.dams333.apisconnector.client.spotify.SpotifyClient;
 
 public class APIsConnectorClient {
 
     private UUID id;
     private HueClient hueClient;
+    private SpotifyClient spotifyClient;
 
-    public APIsConnectorClient(UUID id, HueClient hueClient) {
+    public APIsConnectorClient(UUID id, HueClient hueClient, SpotifyClient spotifyClient) {
         this.id = id;
         this.hueClient = hueClient;
+        this.spotifyClient = spotifyClient;
     }
 
     public UUID getId() {
@@ -20,6 +23,10 @@ public class APIsConnectorClient {
 
     public HueClient getHueClient() {
         return this.hueClient;
+    }
+
+    public SpotifyClient getSpotifyClient() {
+        return this.spotifyClient;
     }
 
 
@@ -31,6 +38,7 @@ public class APIsConnectorClient {
     public static final class Builder {
 
         private HueClient hueClient = null;
+        private SpotifyClient spotifyClient = null;
 
         private Builder() {}
 
@@ -39,8 +47,13 @@ public class APIsConnectorClient {
             return this;
         }
 
+        public Builder addSpotifyClient(){
+            this.spotifyClient = new SpotifyClient();
+            return this;
+        }
+
         public APIsConnectorClient build(){
-            return new APIsConnectorClient(UUID.randomUUID(), this.hueClient);
+            return new APIsConnectorClient(UUID.randomUUID(), this.hueClient, this.spotifyClient);
         }
     }
 
