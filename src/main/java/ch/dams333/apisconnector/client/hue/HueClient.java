@@ -1,24 +1,31 @@
 package ch.dams333.apisconnector.client.hue;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Timer;
 
 import org.json.JSONObject;
 import org.simpleyaml.configuration.file.YamlFile;
 
 import ch.dams333.apisconnector.APIsConnector;
+import ch.dams333.apisconnector.client.hue.interfaces.SensorInterface;
+import ch.dams333.apisconnector.client.hue.listen.SensorListen;
 import ch.dams333.apisconnector.utils.http.SendRequest;
 
 public class HueClient {
     
     public HueClient() {
+        sensorListens = new ArrayList<>();
         this.initClient();
     }
 
     private String bridgeIP;
     private String bridgeUsername;
+    private List<SensorListen> sensorListens;
 
     private boolean initClient(){
         try {
@@ -67,7 +74,7 @@ public class HueClient {
                 } catch (final IOException e) {
                     e.printStackTrace();
                 }
-                System.out.println("Connexion avec le bridge Hue éffectué sous le nom d'utilisateur: " + bridgeUsername);
+                System.out.println("Connexion avec le bridge Hue éffectuée sous le nom d'utilisateur: " + bridgeUsername);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -81,6 +88,13 @@ public class HueClient {
             System.out.println("    - " + id + ": " + lights.get(id).getString("name") + " (" + (lights.get(id).getJSONObject("state").getBoolean("on") ? "Allumée" : "Éteinte") + ")");
         }
     }
+    public void printHueSensors() {
+        System.out.println("Liste des capteurs connectées au bridge Hue:");
+        Map<String, JSONObject> lights = Sensors.getSensors(bridgeIP, bridgeUsername);
+        for(String id : lights.keySet()){
+            System.out.println("    - " + id + ": " + lights.get(id).getString("name"));
+        }
+    }
 
     public void lightOn(int lightID){
         HashMap<String, Object> state = new HashMap<>();
@@ -92,7 +106,7 @@ public class HueClient {
         HashMap<String, Object> state = new HashMap<>();
         state.put("on", false);
         Lights.setState(bridgeIP, bridgeUsername, lightID, state);
-        System.out.println(Lights.getLightName(bridgeIP, bridgeUsername, lightID) + " éteinte !");
+        System.out.println("'" + Lights.getLightName(bridgeIP, bridgeUsername, lightID) + "' éteinte !");
     }
     public void toggleLight(int lightID){
         if(Lights.getLight(bridgeIP, bridgeUsername, lightID).getJSONObject("state").getBoolean("on")){
@@ -118,5 +132,16 @@ public class HueClient {
         state.put("xy", Arrays.asList(x, y));
         Lights.setState(bridgeIP, bridgeUsername, lightID, state);
         System.out.println("'" + Lights.getLightName(bridgeIP, bridgeUsername, lightID) + "' a désormais sa couleur sur " + x + ", " + y + " (x, y) !");
+    }
+
+    public void addSensorListening(int sensorID, SensorInterface<Integer> sensorInterface){
+        SensorListen sensorListen = new SensorListen(sensorID, bridgeIP, bridgeUsername, sensorInterface);
+        new Timer(true).scheduleAtFixedRate(sensorListen, 0, 1000);
+    }
+
+    public void cancelListeners() {
+        for(SensorListen sensorListen : this.sensorListens){
+            sensorListen.cancel();
+        }
     }
 }

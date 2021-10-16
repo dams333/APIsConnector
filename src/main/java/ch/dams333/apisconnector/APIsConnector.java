@@ -35,6 +35,7 @@ public class APIsConnector implements Runnable{
                 performCommand(scanner.nextLine());
             }
         }
+        client.getHueClient().cancelListeners();
         System.out.println("App de test quittée");
         System.exit(0);
     }
@@ -57,6 +58,9 @@ public class APIsConnector implements Runnable{
         }
         if(command.startsWith("huecolor")){
             client.getHueClient().lightColor(Integer.parseInt(command.split(" ")[1]), Double.parseDouble(command.split(" ")[2]), Double.parseDouble(command.split(" ")[3]));
+        }
+        if(command.equalsIgnoreCase("huesensors")){
+            client.getHueClient().printHueSensors();
         }
 
         if(command.equalsIgnoreCase("stop")){
