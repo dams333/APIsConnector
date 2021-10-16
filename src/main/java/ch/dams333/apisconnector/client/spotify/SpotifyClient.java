@@ -28,7 +28,7 @@ public class SpotifyClient {
         YamlFile config = APIsConnector.getConfig();
         if(!config.getKeys(false).contains("SpotifyRefreshToken")){
             Runtime rt = Runtime.getRuntime();
-            String url = "https://accounts.spotify.com/authorize?client_id=75fedb44ef994f53ade53dda2bb85a62&response_type=code&redirect_uri=http://localhost:8333/spotify";
+            String url = "https://accounts.spotify.com/authorize?client_id=75fedb44ef994f53ade53dda2bb85a62&scope=user-read-currently-playing&response_type=code&redirect_uri=http://localhost:8333/spotify";
             try {
                 rt.exec("rundll32 url.dll,FileProtocolHandler " + url);
             } catch (IOException e) {
@@ -72,18 +72,6 @@ public class SpotifyClient {
         return header;
     }
 
-    public String getUserName(){
-        try {
-            return SendRequest.get("https://api.spotify.com/v1/me", getAuthorizationHeader()).getString("display_name");
-        } catch (JSONException e) {
-            e.printStackTrace();
-            return null;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
     private void relog(String refresh_token){
         Map<String, String> body = new HashMap<>();
         body.put("grant_type", "refresh_token");
@@ -98,5 +86,28 @@ public class SpotifyClient {
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
-    }    
+    }
+    
+    public String getUserName(){
+        try {
+            return SendRequest.get("https://api.spotify.com/v1/me", getAuthorizationHeader()).getString("display_name");
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return null;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public JSONObject getCurrentSong(){
+        try {
+            return SendRequest.get("https://api.spotify.com/v1/me/player/currently-playing", getAuthorizationHeader());
+        } catch (Exception e) {
+            if(!(e instanceof JSONException)){
+                e.printStackTrace();
+            }
+            return null;
+        }
+    }
 }

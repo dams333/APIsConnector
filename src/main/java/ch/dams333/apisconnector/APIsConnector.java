@@ -5,6 +5,7 @@ import java.util.Scanner;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 
+import org.json.JSONObject;
 import org.simpleyaml.configuration.file.YamlFile;
 
 import com.sun.net.httpserver.*;
@@ -86,6 +87,15 @@ public class APIsConnector implements Runnable{
         }
         if(command.equalsIgnoreCase("huesensors")){
             client.getHueClient().printHueSensors();
+        }
+
+        if(command.equalsIgnoreCase("spotCurrent")){
+            JSONObject current = client.getSpotifyClient().getCurrentSong();
+            if(current == null){
+                System.out.println("Il n'y a pas de musique en cours de lecture");
+            }else{
+                System.out.println("La musique en cours de lecture est " + current.getJSONObject("item").getString("name") + " (" + current.getJSONObject("item").getJSONArray("artists").getJSONObject(0).getString("name") + ")");
+            }
         }
 
         if(command.equalsIgnoreCase("stop")){

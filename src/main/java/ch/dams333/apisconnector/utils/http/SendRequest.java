@@ -32,7 +32,11 @@ public class SendRequest {
                 res = res.substring(1, res.length());
                 res = res.substring(0, res.length() - 1);
             }
-            return new JSONObject(res);
+            if(res != null){
+                return new JSONObject(res);
+            }else{
+                return null;
+            }
         }
     }
 
