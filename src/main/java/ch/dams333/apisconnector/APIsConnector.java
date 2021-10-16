@@ -46,6 +46,18 @@ public class APIsConnector implements Runnable{
         if(command.equalsIgnoreCase("huelights")){
             client.getHueClient().printHueLights();
         }
+        if(command.startsWith("huetoggle")){
+            client.getHueClient().toggleLight(Integer.parseInt(command.split(" ")[1]));
+        }
+        if(command.startsWith("huesat")){
+            client.getHueClient().lightSaturation(Integer.parseInt(command.split(" ")[1]), Integer.parseInt(command.split(" ")[2]));
+        }
+        if(command.startsWith("huebri")){
+            client.getHueClient().lightBrightness(Integer.parseInt(command.split(" ")[1]), Integer.parseInt(command.split(" ")[2]));
+        }
+        if(command.startsWith("huecolor")){
+            client.getHueClient().lightColor(Integer.parseInt(command.split(" ")[1]), Double.parseDouble(command.split(" ")[2]), Double.parseDouble(command.split(" ")[3]));
+        }
 
         if(command.equalsIgnoreCase("stop")){
             running = false;

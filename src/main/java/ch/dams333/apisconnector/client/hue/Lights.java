@@ -8,17 +8,26 @@ import org.json.JSONObject;
 import ch.dams333.apisconnector.utils.http.SendRequest;
 
 public class Lights {
-    public static Map<String, String> getLights(String bridgeIP, String bridgeUsername){
+    public static Map<String, JSONObject> getLights(String bridgeIP, String bridgeUsername){
         try {
             JSONObject res = SendRequest.get("http://" + bridgeIP + "/api/" + bridgeUsername + "/lights", new HashMap<>());
-            Map<String, String> result = new HashMap<>();
+            Map<String, JSONObject> result = new HashMap<>();
             for(String id : res.keySet()){
-                result.put(id, res.getJSONObject(id).getString("name"));
+                result.put(id, res.getJSONObject(id));
             }
             return result;
         } catch (Exception e) {
             e.printStackTrace();
             return new HashMap<>();
+        }
+    }
+
+    public static JSONObject getLight(String bridgeIP, String bridgeUsername, int lightID){
+        try {
+            return SendRequest.get("http://" + bridgeIP + "/api/" + bridgeUsername + "/lights/" + lightID, new HashMap<>());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
         }
     }
 

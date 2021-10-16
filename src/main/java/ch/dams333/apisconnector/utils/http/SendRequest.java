@@ -21,7 +21,6 @@ public class SendRequest {
         for(String key : header.keySet()){
             builder.addHeader(key, header.get(key));
         }
-
         Request request = builder.build();
 
         try (Response response = httpClient.newCall(request).execute()) {
@@ -69,7 +68,7 @@ public class SendRequest {
 
         JSONObject jsonObject = new JSONObject();
         for(String key : body.keySet()){
-            jsonObject.put(key, body.get(key));
+                jsonObject.put(key, body.get(key));
         }
         RequestBody requestBody = RequestBody.create(JSON, jsonObject.toString());
 

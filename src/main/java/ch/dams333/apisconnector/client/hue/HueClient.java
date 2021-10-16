@@ -1,6 +1,7 @@
 package ch.dams333.apisconnector.client.hue;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -75,9 +76,9 @@ public class HueClient {
 
     public void printHueLights() {
         System.out.println("Liste des lumières connectées au bridge Hue:");
-        Map<String, String> lights = Lights.getLights(bridgeIP, bridgeUsername);
+        Map<String, JSONObject> lights = Lights.getLights(bridgeIP, bridgeUsername);
         for(String id : lights.keySet()){
-            System.out.println("    - " + id + ": " + lights.get(id));
+            System.out.println("    - " + id + ": " + lights.get(id).getString("name") + " (" + (lights.get(id).getJSONObject("state").getBoolean("on") ? "Allumée" : "Éteinte") + ")");
         }
     }
 
@@ -92,5 +93,30 @@ public class HueClient {
         state.put("on", false);
         Lights.setState(bridgeIP, bridgeUsername, lightID, state);
         System.out.println(Lights.getLightName(bridgeIP, bridgeUsername, lightID) + " éteinte !");
+    }
+    public void toggleLight(int lightID){
+        if(Lights.getLight(bridgeIP, bridgeUsername, lightID).getJSONObject("state").getBoolean("on")){
+            lightOff(lightID);
+        }else{
+            lightOn(lightID);
+        }
+    }
+    public void lightBrightness(int lightID, int brightness){
+        HashMap<String, Object> state = new HashMap<>();
+        state.put("bri", brightness);
+        Lights.setState(bridgeIP, bridgeUsername, lightID, state);
+        System.out.println("'" + Lights.getLightName(bridgeIP, bridgeUsername, lightID) + "' a désormais sa luminosité sur " + brightness + " !");
+    }
+    public void lightSaturation(int lightID, int saturation){
+        HashMap<String, Object> state = new HashMap<>();
+        state.put("sat", saturation);
+        Lights.setState(bridgeIP, bridgeUsername, lightID, state);
+        System.out.println("'" + Lights.getLightName(bridgeIP, bridgeUsername, lightID) + "' a désormais sa saturation sur " + saturation + " !");
+    }
+    public void lightColor(int lightID, double x, double y){
+        HashMap<String, Object> state = new HashMap<>();
+        state.put("xy", Arrays.asList(x, y));
+        Lights.setState(bridgeIP, bridgeUsername, lightID, state);
+        System.out.println("'" + Lights.getLightName(bridgeIP, bridgeUsername, lightID) + "' a désormais sa couleur sur " + x + ", " + y + " (x, y) !");
     }
 }
