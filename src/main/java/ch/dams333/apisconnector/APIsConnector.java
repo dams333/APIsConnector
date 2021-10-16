@@ -43,6 +43,9 @@ public class APIsConnector implements Runnable{
         if(command.equalsIgnoreCase("hueconnect")){
             client.getHueClient().bridgeConnect();
         }
+        if(command.equalsIgnoreCase("huelights")){
+            client.getHueClient().printHueLights();
+        }
 
         if(command.equalsIgnoreCase("stop")){
             running = false;

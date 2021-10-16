@@ -2,6 +2,7 @@ package ch.dams333.apisconnector.client.hue;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.json.JSONObject;
 import org.simpleyaml.configuration.file.YamlFile;
@@ -28,7 +29,7 @@ public class HueClient {
             System.out.println("Starting Hue client with bridge at " + bridgeIP);
             YamlFile config = APIsConnector.getConfig();
             if(!config.getKeys(false).contains("HueUsername")){
-                HashMap<String, String> body = new HashMap<>();
+                HashMap<String, Object> body = new HashMap<>();
                 body.put("devicetype", "APIsConnector#HueClient");
                 JSONObject res = SendRequest.post("http://" + bridgeIP + "/api", new HashMap<>(), body);
                 if(res.has("error") && res.getJSONObject("error").getInt("type") == 101){
@@ -48,7 +49,7 @@ public class HueClient {
     }
 
     public void bridgeConnect() {
-        HashMap<String, String> body = new HashMap<>();
+        HashMap<String, Object> body = new HashMap<>();
         body.put("devicetype", "APIsConnector#HueClient");
         try {
             JSONObject res = SendRequest.post("http://" + bridgeIP + "/api", new HashMap<>(), body);
@@ -70,5 +71,26 @@ public class HueClient {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public void printHueLights() {
+        System.out.println("Liste des lumières connectées au bridge Hue:");
+        Map<String, String> lights = Lights.getLights(bridgeIP, bridgeUsername);
+        for(String id : lights.keySet()){
+            System.out.println("    - " + id + ": " + lights.get(id));
+        }
+    }
+
+    public void lightOn(int lightID){
+        HashMap<String, Object> state = new HashMap<>();
+        state.put("on", true);
+        Lights.setState(bridgeIP, bridgeUsername, lightID, state);
+        System.out.println("'" + Lights.getLightName(bridgeIP, bridgeUsername, lightID) + "' allumée !");
+    }
+    public void lightOff(int lightID){
+        HashMap<String, Object> state = new HashMap<>();
+        state.put("on", false);
+        Lights.setState(bridgeIP, bridgeUsername, lightID, state);
+        System.out.println(Lights.getLightName(bridgeIP, bridgeUsername, lightID) + " éteinte !");
     }
 }

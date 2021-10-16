@@ -37,7 +37,7 @@ public class SendRequest {
 
     public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
-    public static JSONObject post(String url, Map<String, String> header, Map<String, String> body) throws Exception {
+    public static JSONObject post(String url, Map<String, String> header, Map<String, Object> body) throws Exception {
 
         JSONObject jsonObject = new JSONObject();
         for(String key : body.keySet()){
@@ -50,6 +50,34 @@ public class SendRequest {
                 .addHeader("User-Agent", "OkHttp Bot")
                 .addHeader("Content-Type", "application/json");
         requestBuilder.post(requestBody);
+        Request request = requestBuilder.build();
+
+        try (Response response = httpClient.newCall(request).execute()) {
+
+            if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
+            String res = response.body().string();
+            if(res.startsWith("[")){
+                res = res.substring(1, res.length());
+                res = res.substring(0, res.length() - 1);
+            }
+            return new JSONObject(res);
+        }
+
+    }
+
+    public static JSONObject put(String url, Map<String, String> header, Map<String, Object> body) throws Exception {
+
+        JSONObject jsonObject = new JSONObject();
+        for(String key : body.keySet()){
+            jsonObject.put(key, body.get(key));
+        }
+        RequestBody requestBody = RequestBody.create(JSON, jsonObject.toString());
+
+        Builder requestBuilder = new Request.Builder()
+                .url(url)
+                .addHeader("User-Agent", "OkHttp Bot")
+                .addHeader("Content-Type", "application/json");
+        requestBuilder.put(requestBody);
         Request request = requestBuilder.build();
 
         try (Response response = httpClient.newCall(request).execute()) {
