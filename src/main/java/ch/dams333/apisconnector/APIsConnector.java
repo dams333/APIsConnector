@@ -97,6 +97,18 @@ public class APIsConnector implements Runnable{
                 System.out.println("La musique en cours de lecture est " + current.getJSONObject("item").getString("name") + " (" + current.getJSONObject("item").getJSONArray("artists").getJSONObject(0).getString("name") + ")");
             }
         }
+        if(command.equalsIgnoreCase("spotBearer")){
+            System.out.println(client.getSpotifyClient().getAuthorizationHeader().get("Authorization"));
+        }
+        if(command.equalsIgnoreCase("spotNext")){
+            client.getSpotifyClient().nextSong();
+        }
+        if(command.equalsIgnoreCase("spotPrev")){
+            client.getSpotifyClient().prevSong();
+        }
+        if(command.equalsIgnoreCase("spotToggle")){
+            client.getSpotifyClient().togglePause();
+        }
 
         if(command.equalsIgnoreCase("stop")){
             running = false;

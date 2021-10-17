@@ -43,7 +43,7 @@ public class SensorListen extends TimerTask{
         try {
             Date sensorLastDate = format.parse(sensorLast);
             if(sensorLastDate.getTime() > lastInput.getTime()){
-                System.out.println("Detect input on hue sensor " + sensorID + " (" + sensor.getJSONObject("state").getInt("buttonevent") + ")");
+                System.out.println("Action détectée sur le capteur " + sensorID + " (" + sensor.getJSONObject("state").getInt("buttonevent") + ")");
                 sensorInterface.active(sensor.getJSONObject("state").getInt("buttonevent"));
                 lastInput = sensorLastDate;
             }

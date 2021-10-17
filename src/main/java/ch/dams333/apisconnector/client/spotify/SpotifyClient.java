@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.simpleyaml.configuration.file.YamlFile;
@@ -28,7 +29,7 @@ public class SpotifyClient {
         YamlFile config = APIsConnector.getConfig();
         if(!config.getKeys(false).contains("SpotifyRefreshToken")){
             Runtime rt = Runtime.getRuntime();
-            String url = "https://accounts.spotify.com/authorize?client_id=75fedb44ef994f53ade53dda2bb85a62&scope=user-read-currently-playing&response_type=code&redirect_uri=http://localhost:8333/spotify";
+            String url = "https://accounts.spotify.com/authorize?client_id=75fedb44ef994f53ade53dda2bb85a62&scope=user-read-currently-playing+user-modify-playback-state+user-read-playback-state&response_type=code&redirect_uri=http://localhost:8333/spotify";
             try {
                 rt.exec("rundll32 url.dll,FileProtocolHandler " + url);
             } catch (IOException e) {
@@ -62,7 +63,7 @@ public class SpotifyClient {
         }
     }
 
-    private Map<String, String> getAuthorizationHeader(){
+    public Map<String, String> getAuthorizationHeader(){
         if(new Date().getTime() > expirationDate.getTime()){
             YamlFile config = APIsConnector.getConfig();
             relog(config.getString("SpotifyRefreshToken"));
@@ -108,6 +109,70 @@ public class SpotifyClient {
                 e.printStackTrace();
             }
             return null;
+        }
+    }
+
+    public String getActiveDeviceID(){
+        try {
+            JSONArray devices = SendRequest.get("https://api.spotify.com/v1/me/player/devices", getAuthorizationHeader()).getJSONArray("devices");
+            for(int i = 0; i < devices.length(); i++){
+                if(devices.getJSONObject(i).getBoolean("is_active")){
+                    return devices.getJSONObject(i).getString("id");
+                }
+            }
+            return "0";
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public void nextSong(){
+        String deviceID = getActiveDeviceID();
+        if(deviceID.equals("0")){
+            System.out.println("Il n'y a pas de lecture en cours");
+        }else{
+            Songs.nextSong(deviceID, getAuthorizationHeader());
+        }
+    }
+    
+    public void prevSong(){
+        String deviceID = getActiveDeviceID();
+        if(deviceID.equals("0")){
+            System.out.println("Il n'y a pas de lecture en cours");
+        }else{
+            Songs.prevSong(deviceID, getAuthorizationHeader());
+        }
+    }
+
+    public void play(){
+        String deviceID = getActiveDeviceID();
+        if(deviceID.equals("0")){
+            System.out.println("Il n'y a pas de lecture en cours");
+        }else{
+            Songs.play(deviceID, getAuthorizationHeader());
+        }
+    }
+
+    public void pause(){
+        String deviceID = getActiveDeviceID();
+        if(deviceID.equals("0")){
+            System.out.println("Il n'y a pas de lecture en cours");
+        }else{
+            Songs.pause(deviceID, getAuthorizationHeader());
+        }
+    }
+
+    public void togglePause(){
+        JSONObject currentSong = getCurrentSong();
+        if(currentSong != null){
+            if(currentSong.getBoolean("is_playing")){
+                pause();
+            }else{
+                play();
+            }
+        }else{
+            System.out.println("Il n'y a pas de lecture en cours");
         }
     }
 }

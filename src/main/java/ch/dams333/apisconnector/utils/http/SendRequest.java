@@ -32,7 +32,7 @@ public class SendRequest {
                 res = res.substring(1, res.length());
                 res = res.substring(0, res.length() - 1);
             }
-            if(res != null){
+            if(res != null && !res.equals("")){
                 return new JSONObject(res);
             }else{
                 return null;
@@ -68,7 +68,11 @@ public class SendRequest {
                 res = res.substring(1, res.length());
                 res = res.substring(0, res.length() - 1);
             }
-            return new JSONObject(res);
+            if(res != null && !res.equals("")){
+                return new JSONObject(res);
+            }else{
+                return null;
+            }
         }
 
     }
@@ -99,7 +103,11 @@ public class SendRequest {
                 res = res.substring(1, res.length());
                 res = res.substring(0, res.length() - 1);
             }
-            return new JSONObject(res);
+            if(res != null && !res.equals("")){
+                return new JSONObject(res);
+            }else{
+                return null;
+            }
         }
 
     }
@@ -130,7 +138,11 @@ public class SendRequest {
                 res = res.substring(1, res.length());
                 res = res.substring(0, res.length() - 1);
             }
-            return new JSONObject(res);
+            if(res != null && !res.equals("")){
+                return new JSONObject(res);
+            }else{
+                return null;
+            }
         }
 
     }
