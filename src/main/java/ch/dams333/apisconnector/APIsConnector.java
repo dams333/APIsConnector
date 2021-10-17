@@ -12,6 +12,7 @@ import com.sun.net.httpserver.*;
 
 import ch.dams333.apisconnector.client.APIsConnectorClient;
 import ch.dams333.apisconnector.client.spotify.http.SpotifyHttpHandler;
+import ch.dams333.apisconnector.client.twitch.http.TwitchHttpHandler;
 
 public class APIsConnector implements Runnable{
 
@@ -42,6 +43,8 @@ public class APIsConnector implements Runnable{
         client = APIsConnectorClient.builder()
             .addHueClient()
             .addSpotifyClient()
+            .addDiscordClient(Secret.DISCORD_BOT_TOKEN, "TestBot")
+            .addTwitchClient()
             .build();
 
         while(running) {
@@ -50,6 +53,7 @@ public class APIsConnector implements Runnable{
             }
         }
         client.getHueClient().cancelListeners();
+        client.stopDiscordBots();
         server.stop(0);
         System.out.println("App de test quittée");
         System.exit(0);
@@ -59,7 +63,8 @@ public class APIsConnector implements Runnable{
 
     private void startWebServer() throws Exception{
         server = HttpServer.create(new InetSocketAddress("localhost", 8333), 0);
-        server.createContext("/spotify", new  SpotifyHttpHandler());
+        server.createContext("/spotify", new SpotifyHttpHandler());
+        server.createContext("/twitch", new TwitchHttpHandler());
         ThreadPoolExecutor threadPoolExecutor = (ThreadPoolExecutor)Executors.newFixedThreadPool(10);
         server.setExecutor(threadPoolExecutor);
         server.start();

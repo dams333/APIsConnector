@@ -1,20 +1,32 @@
 package ch.dams333.apisconnector.client;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
+import ch.dams333.apisconnector.client.discord.DiscordClient;
 import ch.dams333.apisconnector.client.hue.HueClient;
 import ch.dams333.apisconnector.client.spotify.SpotifyClient;
+import ch.dams333.apisconnector.client.twitch.TwitchClient;
 
 public class APIsConnectorClient {
 
     private UUID id;
     private HueClient hueClient;
     private SpotifyClient spotifyClient;
+    private TwitchClient twitchClient;
+    private List<DiscordClient> discordClients;
 
-    public APIsConnectorClient(UUID id, HueClient hueClient, SpotifyClient spotifyClient) {
+    public APIsConnectorClient(UUID id, HueClient hueClient, SpotifyClient spotifyClient, List<DiscordClient> discordClients, TwitchClient twitchClient) {
         this.id = id;
         this.hueClient = hueClient;
         this.spotifyClient = spotifyClient;
+        this.discordClients = discordClients;
+        this.twitchClient = twitchClient;
+    }
+
+    public TwitchClient getTwitchClient() {
+        return this.twitchClient;
     }
 
     public UUID getId() {
@@ -29,6 +41,20 @@ public class APIsConnectorClient {
         return this.spotifyClient;
     }
 
+    public DiscordClient getDiscordClient(String name){
+        for(DiscordClient client : this.discordClients){
+            if(client.getName().equalsIgnoreCase(name)){
+                return client;
+            }
+        }
+        return null;
+    }
+
+    public void stopDiscordBots(){
+        for(DiscordClient client : this.discordClients){
+            client.stop();
+        }
+    }
 
 
     public static Builder builder() { 
@@ -39,6 +65,8 @@ public class APIsConnectorClient {
 
         private HueClient hueClient = null;
         private SpotifyClient spotifyClient = null;
+        private TwitchClient twitchClient = null;
+        private List<DiscordClient> discordClients = new ArrayList<>();
 
         private Builder() {}
 
@@ -52,8 +80,18 @@ public class APIsConnectorClient {
             return this;
         }
 
+        public Builder addTwitchClient(){
+            this.twitchClient = new TwitchClient();
+            return this;
+        }
+
+        public Builder addDiscordClient(String token, String name){
+            this.discordClients.add(new DiscordClient(token, name));
+            return this;
+        }
+
         public APIsConnectorClient build(){
-            return new APIsConnectorClient(UUID.randomUUID(), this.hueClient, this.spotifyClient);
+            return new APIsConnectorClient(UUID.randomUUID(), this.hueClient, this.spotifyClient, this.discordClients, this.twitchClient);
         }
     }
 

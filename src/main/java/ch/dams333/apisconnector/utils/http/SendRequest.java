@@ -97,7 +97,7 @@ public class SendRequest {
 
         try (Response response = httpClient.newCall(request).execute()) {
 
-            if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
+            if (!response.isSuccessful()) throw new IOException("Unexpected code " + response + "\n" + response.body().string());
             String res = response.body().string();
             if(res.startsWith("[")){
                 res = res.substring(1, res.length());
