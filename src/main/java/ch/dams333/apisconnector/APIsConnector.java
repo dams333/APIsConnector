@@ -11,6 +11,7 @@ import org.simpleyaml.configuration.file.YamlFile;
 import com.sun.net.httpserver.*;
 
 import ch.dams333.apisconnector.client.APIsConnectorClient;
+import ch.dams333.apisconnector.client.github.http.GithubHttpHandler;
 import ch.dams333.apisconnector.client.spotify.http.SpotifyHttpHandler;
 import ch.dams333.apisconnector.client.twitch.http.TwitchHttpHandler;
 
@@ -45,6 +46,7 @@ public class APIsConnector implements Runnable{
             .addSpotifyClient()
             .addDiscordClient(Secret.DISCORD_BOT_TOKEN, "TestBot")
             .addTwitchClient()
+            .addGithubClient()
             .build();
 
         while(running) {
@@ -65,6 +67,7 @@ public class APIsConnector implements Runnable{
         server = HttpServer.create(new InetSocketAddress("localhost", 8333), 0);
         server.createContext("/spotify", new SpotifyHttpHandler());
         server.createContext("/twitch", new TwitchHttpHandler());
+        server.createContext("/github", new GithubHttpHandler());
         ThreadPoolExecutor threadPoolExecutor = (ThreadPoolExecutor)Executors.newFixedThreadPool(10);
         server.setExecutor(threadPoolExecutor);
         server.start();
