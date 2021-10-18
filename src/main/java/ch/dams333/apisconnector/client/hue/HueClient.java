@@ -34,7 +34,7 @@ public class HueClient {
                 System.out.println("Impossible de trouver un bridge Hue sur votre réseau");
                 return false;
             }
-            System.out.println("Starting Hue client with bridge at " + bridgeIP);
+            System.out.println("Démarrage du Client Hue avec le bridge: " + bridgeIP);
             YamlFile config = APIsConnector.getConfig();
             if(!config.getKeys(false).contains("HueUsername")){
                 HashMap<String, Object> body = new HashMap<>();
